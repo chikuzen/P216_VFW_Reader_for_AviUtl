@@ -6,12 +6,12 @@ LDFLAGS = -shared -Wl,--dll,--add-stdcall-alias -Wl,-s -L.
 
 .Phony: all clean
 
-all: p216reader.aui
+all: p21xreader.aui
 
-p216reader.aui: p216reader.o
+p21xreader.aui: p21xreader.o
 	$(LD) $(LDFLAGS) $(XLDFLAGS) -o $@ $^ -lavifil32
 
-p216reader.o: p216reader.c input.h
+p21xreader.o: p216reader.c input.h
 	$(CC) -c $(CFLAGS) $(XCFLAGS) -o $@ $<
 
 clean:

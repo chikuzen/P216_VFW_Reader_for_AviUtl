@@ -1,4 +1,4 @@
-P216 VFW Reader for AviUtl version 0.1.0
+P21X VFW Reader for AviUtl version 0.2.0
 
 Copyright (c) 2012 Oka Motofumi (chikuzen.mo at gmail dot com)
 
@@ -26,8 +26,10 @@ A: AviUtl0.99l以降用のP216専用入力プラグインです。
    .vpy(vapoursynth script file)及び.aviをVideo for Windowsを使って読み込みます。
 
 
-Q: P216ってなんですか？
-A: Microsoftが決めたYUV422-16bit用のFourCCです。
+Q: P21Xってなんですか？
+A: P210/P216のことをさします。
+   P210/P216はMicrosoftが決めたYUV422-16bit用のFourCCです。
+   P210はYUV各プレーンが10bitのYUVをビットシフトして16bitにしたもの、P216はそのまま16bitです。
    色の並び方はNV12とだいたい同じです。
    詳しくは
    http://msdn.microsoft.com/en-us/library/windows/desktop/bb970578(v=vs.85).aspx
@@ -35,10 +37,10 @@ A: Microsoftが決めたYUV422-16bit用のFourCCです。
 
 
 Q: 具体的には？
-A: .vpyか.aviを渡された時、fccHandlerが"P216"であればこのプラグインで読み込めます。
-   P216以外のfccHandlerであれば何もしません。
-   よって.vpyの場合は事前にlastクリップをYUV422P16に変換しておく必要があります。
-   P216はYC48に変換してからAviUtlに渡されます。
+A: .vpyか.aviを渡された時、fccHandlerが"P210"か"P216"であればこのプラグインで読み込めます。
+   P210かP216以外のfccHandlerであれば何もしません。
+   よって.vpyの場合は事前にlastクリップをYUV422P10かYUV422P16に変換しておく必要があります。
+   P21XはYC48に変換してからAviUtlに渡されます。
 
    16bitYUV->YC48の変換式は次のようになっています。
       YC48_Y  = ((16bit_y - 4096) * 4789) / 256

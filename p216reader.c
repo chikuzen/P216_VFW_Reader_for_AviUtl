@@ -1,6 +1,6 @@
 /*
 
-P216 VFW Reader for AviUtl0.99m
+P21X VFW Reader for AviUtl0.99m
 
 Author Oka Motofumi (chikuzen.mo at gmail dot com)
 
@@ -41,10 +41,10 @@ THE SOFTWARE.
 
 INPUT_PLUGIN_TABLE input_plugin_table = {
     INPUT_PLUGIN_FLAG_VIDEO,
-    "P216 VFW reader",
+    "P21x VFW reader",
     "vapoursynth script (*.vpy)\0*.vpy\0"
     "AVI File (*.avi)\0*.avi\0",
-    "P216 VFW reader version 0.1.0",
+    "P21x VFW reader version 0.2.0",
     func_init,
     func_exit,
     func_open,
@@ -71,8 +71,7 @@ typedef struct {
     BITMAPINFOHEADER dst_format;
     char *buff;
     LONG buff_size;
-} p216_hnd_t;
-
+} p21x_hnd_t;
 
 #ifdef DEBUG
 static void debug_msg(char *format, ...)
@@ -101,7 +100,7 @@ BOOL func_exit(void)
 }
 
 
-static void set_dst_format(p216_hnd_t *h)
+static void set_dst_format(p21x_hnd_t *h)
 {
     int width = h->file_info.dwWidth;
     int height = h->file_info.dwHeight;
@@ -115,7 +114,7 @@ static void set_dst_format(p216_hnd_t *h)
 }
 
 
-static int allocate_buff(p216_hnd_t *h)
+static int allocate_buff(p21x_hnd_t *h)
 {
     AVIStreamRead(h->stream, 0, 1, NULL, 0, &h->buff_size, NULL);
     h->buff = malloc(h->buff_size);
@@ -123,7 +122,7 @@ static int allocate_buff(p216_hnd_t *h)
 }
 
 
-static void close_handler(p216_hnd_t *h)
+static void close_handler(p21x_hnd_t *h)
 {
     if (h->buff) {
         free(h->buff);
@@ -138,7 +137,7 @@ static void close_handler(p216_hnd_t *h)
 
 INPUT_HANDLE func_open(LPSTR file)
 {
-    p216_hnd_t *h = (p216_hnd_t *)calloc(1, sizeof(p216_hnd_t));
+    p21x_hnd_t *h = (p21x_hnd_t *)calloc(1, sizeof(p21x_hnd_t));
     if (!h) {
         return NULL;
     }
@@ -152,13 +151,13 @@ INPUT_HANDLE func_open(LPSTR file)
         goto fail;
     }
 
-    if (AVIFileGetStream(h->file, &h->stream, 0, 0) != 0 ) {
+    if (AVIFileGetStream(h->file, &h->stream, streamtypeVIDEO, 0) != 0 ) {
         goto fail;
     }
 
     AVIStreamInfo(h->stream, &h->stream_info, sizeof(AVISTREAMINFO));
-    if (h->stream_info.fccType != streamtypeVIDEO ||
-        h->stream_info.fccHandler != MAKEFOURCC('P', '2', '1', '6')) {
+    if (h->stream_info.fccHandler != MAKEFOURCC('P', '2', '1', '6') &&
+        h->stream_info.fccHandler != MAKEFOURCC('P', '2', '1', '0')) {
         goto fail;
     }
 
@@ -178,7 +177,7 @@ fail:
 
 BOOL func_close(INPUT_HANDLE ih)
 {
-    p216_hnd_t *h = (p216_hnd_t *)ih;
+    p21x_hnd_t *h = (p21x_hnd_t *)ih;
     if (!h) {
         return TRUE;
     }
@@ -193,7 +192,7 @@ BOOL func_close(INPUT_HANDLE ih)
 
 BOOL func_info_get(INPUT_HANDLE ih, INPUT_INFO *iip)
 {
-    p216_hnd_t *h = (p216_hnd_t *)ih;
+    p21x_hnd_t *h = (p21x_hnd_t *)ih;
 
     iip->flag = INPUT_INFO_FLAG_VIDEO;
     iip->rate = h->stream_info.dwRate;
@@ -221,7 +220,7 @@ typedef struct {
 
 int func_read_video(INPUT_HANDLE ih, int frame, void *buf)
 {
-    p216_hnd_t *h = (p216_hnd_t *)ih;
+    p21x_hnd_t *h = (p21x_hnd_t *)ih;
     LONG size;
 
     if (AVIStreamRead(h->stream, frame, 1, h->buff,
